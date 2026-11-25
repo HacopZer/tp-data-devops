@@ -1,64 +1,35 @@
-name: CI pipeline data 
+name: CI pipeline data
 
-  
+on:
+  push:
+  pull_request:
 
-on: 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
 
-  push: 
+      - name: Installer Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
 
-  pull_request: 
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
 
-  
+      - name: Lancer les tests
+        run: pytest -v
 
-jobs: 
+      - name: Exécuter le pipeline
+        run: python pipeline.py
 
-  build: 
+      - name: Publier les résultats
+        uses: actions/upload-artifact@v7
+        with:
+          name: resultats
+          path: output/
 
-    runs-on: ubuntu-latest 
-
-    steps: 
-
-      - name: Récupérer le code 
-
-        uses: actions/checkout@v7 
-
-  
-
-      - name: Installer Python 
-
-        uses: actions/setup-python@v7 
-
-        with: 
-
-          python-version: "3.12" 
-
-  
-
-      - name: Installer les dépendances 
-
-        run: pip install -r requirements.txt 
-
-  
-
-      - name: Lancer les tests 
-
-        run: pytest -v 
-
-  
-
-      - name: Exécuter le pipeline 
-
-        run: python pipeline.py 
-
-  
-
-      - name: Publier les résultats 
-
-        uses: actions/upload-artifact@v7 
-
-        with: 
-
-          name: resultats 
-
-          path: output/ 
-
+      - name: Construire l'image Docker
+        run: docker build -t pipeline-data .
